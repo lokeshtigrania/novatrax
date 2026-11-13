@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Novatrax</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
+
+body{
+background:linear-gradient(135deg,#09090f,#111827,#1e1b4b);
+color:white;
+min-height:100vh;
+padding-bottom:120px;
+}
+
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 40px;
+border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+.logo{
+font-size:32px;
+font-weight:bold;
+color:#a855f7;
+}
+
+.search-box{
+width:45%;
+}
+
+.search-box input{
+width:100%;
+padding:14px;
+border:none;
+border-radius:25px;
+background:#1e293b;
+color:white;
+}
+
+.profile{
+font-size:28px;
+cursor:pointer;
+}
+
+#clock{
+font-size:15px;
+color:#cbd5e1;
+}
+
+.top-right{
+display:flex;
+align-items:center;
+gap:20px;
+}
+
+.upload{
+padding:20px 40px;
+}
+
+.upload label{
+background:#8b5cf6;
+padding:12px 20px;
+border-radius:12px;
+cursor:pointer;
+}
+
+#songUpload{
+display:none;
+}
+
+.filters{
+padding:0 40px 20px;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.filter{
+padding:10px 18px;
+border-radius:20px;
+background:#1e293b;
+}
+
+.grid{
+padding:20px 40px;
+display:grid;
+grid-template-columns:
+repeat(auto-fill,minmax(220px,1fr));
+gap:20px;
+}
+
+.card{
+background:#1e293b;
+border-radius:20px;
+padding:15px;
+cursor:pointer;
+transition:.3s;
+}
+
+.card:hover{
+transform:translateY(-8px);
+}
+
+.cover{
+height:180px;
+border-radius:15px;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+font-size:60px;
+font-weight:bold;
+
+background:linear-gradient(
+135deg,
+#a855f7,
+#06b6d4
+);
+
+margin-bottom:12px;
+}
+
+.song-name{
+font-size:18px;
+font-weight:bold;
+overflow:hidden;
+text-overflow:ellipsis;
+white-space:nowrap;
+}
+
+.player{
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+background:#0f172a;
+padding:15px 25px;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+border-top:1px solid rgba(255,255,255,.1);
+}
+
+.controls button{
+border:none;
+width:50px;
+height:50px;
+border-radius:50%;
+cursor:pointer;
+margin:0 5px;
+
+background:#8b5cf6;
+color:white;
+font-size:18px;
+}
+
+.controls button:hover{
+background:#9333ea;
+}
+
+.song-info{
+width:250px;
+}
+
+#nowPlaying{
+font-size:16px;
+}
+
+.center{
+width:40%;
+}
+
+#progress{
+width:100%;
+}
+
+.volumeBox{
+position:fixed;
+right:15px;
+top:50%;
+transform:translateY(-50%);
+
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:10px;
+}
+
+#volume{
+writing-mode:vertical-lr;
+height:180px;
+}
+.song-info{
+display:flex;
+align-items:center;
+gap:15px;
+}
+
+#albumArt{
+width:60px;
+height:60px;
+border-radius:12px;
+background:linear-gradient(
+135deg,
+#a855f7,
+#06b6d4
+);
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+font-size:28px;
+}
+
+#artistName{
+font-size:14px;
+color:#94a3b8;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+🎵 Novatrax
+</div>
+
+<div class="search-box">
+<input
+type="text"
+id="search"
+placeholder="Search Songs...">
+</div>
+
+<div class="top-right">
+<div id="clock"></div>
+<div class="profile">👤</div>
+</div>
+
+</header>
+
+<div class="upload">
+
+<label for="songUpload">
+📂 Upload Songs
+</label>
+
+<input
+type="file"
+id="songUpload"
+multiple
+accept="audio/*">
+
+</div>
+
+<div class="filters">
+
+<div class="filter">All</div>
+<div class="filter">Pop</div>
+<div class="filter">Lo-Fi</div>
+<div class="filter">Hip-Hop</div>
+<div class="filter">EDM</div>
+<div class="filter">Jazz</div>
+
+</div>
+
+<div id="grid" class="grid">
+
+</div>
+
+
+<h2 style="padding:0 40px;color:#f472b6;">
+❤️ Favorite Songs
+</h2>
+
+<div id="favGrid" class="grid"></div>
+
+<h2 style="padding:20px 40px;color:#38bdf8;">
+🕒 Recently Played
+</h2>
+
+<div id="recentGrid" class="grid"></div>
+<div class="volumeBox">
+
+🔊
+
+<input
+type="range"
+id="volume"
+min="0"
+max="1"
+step="0.1"
+value="1">
+
+</div>
+
+<div class="player">
+
+<div class="song-info">
+
+<div id="albumArt">
+
+🎵
+
+</div>
+
+<div>
+
+<div id="nowPlaying">
+No Song Selected
+</div>
+
+<div id="artistName">
+Novatrax Player
+</div>
+
+</div>
+
+</div>
+
+<div class="controls">
+
+<button onclick="prevSong()">⏮</button>
+
+<button onclick="playSong()">▶</button>
+
+<button onclick="pauseSong()">⏸</button>
+
+<button onclick="nextSong()">⏭</button>
+
+</div>
+
+<div class="center">
+
+<input
+type="range"
+id="progress"
+value="0">
+
+</div>
+
+</div>
+
+<audio id="audio"></audio>
+
+<script>
+const songs = [
+{
+name:"Piche Tere",
+artist:"Unknown",
+cover:"🎵"
+},
+{
+name:"Believer",
+artist:"Imagine Dragons",
+cover:"🔥"
+}
+];
+
+const upload =
+document.getElementById("songUpload");
+
+const grid =
+document.getElementById("grid");
+
+const audio =
+document.getElementById("audio");
+
+const progress =
+document.getElementById("progress");
+
+const volume =
+document.getElementById("volume");
+
+const nowPlaying =
+document.getElementById("nowPlaying");
+
+const search =
+document.getElementById("search");
+
+let playlist=[];
+let currentSong=0;
+let favourites = [];
+let recentSongs = [];
+upload.addEventListener("change",function(){
+
+playlist=[...this.files];
+
+grid.innerHTML="";
+
+playlist.forEach((song,index)=>{
+
+const card=document.createElement("div");
+
+card.className="card";
+
+card.innerHTML=`
+<div class="cover">
+${song.name[0].toUpperCase()}
+</div>
+
+<div class="song-name">
+${song.name.replace(".mp3","")}
+</div>
+
+<div style="
+margin-top:10px;
+display:flex;
+justify-content:center;
+">
+<button
+class="fav-btn"
+style="
+padding:8px;
+border:none;
+border-radius:10px;
+background:#ec4899;
+color:white;
+cursor:pointer;
+">
+❤️
+</button>
+</div>
+`;
+
+card.addEventListener("click",()=>{
+
+currentSong=index;
+
+loadSong();
+addRecent(song);
+
+audio.play();
+
+});
+
+grid.appendChild(card);
+card.querySelector(".fav-btn")
+.addEventListener("click",function(e){
+
+e.stopPropagation();
+
+addFavourite(song);
+
+});
+});
+
+if(playlist.length>0){
+
+loadSong();
+
+}
+
+});
+
+function loadSong(){
+
+audio.src =
+URL.createObjectURL(
+playlist[currentSong]
+);
+
+let cleanName =
+playlist[currentSong]
+.name
+.replace(".mp3","");
+
+nowPlaying.innerHTML =
+cleanName;
+
+document.getElementById(
+"artistName"
+).innerHTML =
+"Uploaded Track";
+
+}
+
+function playSong(){
+
+if(playlist.length===0){
+
+alert("Upload Songs First");
+
+return;
+}
+
+audio.play();
+}
+
+function pauseSong(){
+
+audio.pause();
+}
+
+function nextSong(){
+
+if(playlist.length===0)return;
+
+currentSong++;
+
+if(currentSong>=playlist.length){
+
+currentSong=0;
+
+}
+
+loadSong();
+
+audio.play();
+}
+
+function prevSong(){
+
+if(playlist.length===0)return;
+
+currentSong--;
+
+if(currentSong<0){
+
+currentSong=
+playlist.length-1;
+
+}
+
+loadSong();
+
+audio.play();
+}
+
+audio.addEventListener("timeupdate",()=>{
+
+if(audio.duration){
+
+progress.value=
+(audio.currentTime/
+audio.duration)*100;
+
+}
+
+});
+
+progress.addEventListener("input",()=>{
+
+if(audio.duration){
+
+audio.currentTime=
+(progress.value/100)
+*audio.duration;
+
+}
+
+});
+
+volume.addEventListener("input",()=>{
+
+audio.volume=
+volume.value;
+
+});
+
+audio.addEventListener("ended",()=>{
+
+nextSong();
+
+});
+function addFavourite(song){
+
+if(favourites.some(
+item => item.name === song.name
+)){
+return;
+}
+
+favourites.push(song);
+
+const favGrid =
+document.getElementById("favGrid");
+
+const favCard =
+document.createElement("div");
+
+favCard.className="card";
+
+favCard.innerHTML=`
+<div class="cover">
+${song.name[0].toUpperCase()}
+</div>
+
+<div class="song-name">
+${song.name}
+</div>
+`;
+
+favGrid.appendChild(favCard);
+
+}
+
+function addRecent(song){
+
+recentSongs =
+recentSongs.filter(
+item=>item.name!==song.name
+);
+
+recentSongs.unshift(song);
+
+if(recentSongs.length > 5){
+
+recentSongs.pop();
+
+}
+
+renderRecent();
+
+}
+
+function renderRecent(){
+
+const recentGrid =
+document.getElementById("recentGrid");
+
+recentGrid.innerHTML="";
+
+recentSongs.forEach(song=>{
+
+const card =
+document.createElement("div");
+
+card.className="card";
+
+card.innerHTML=`
+
+<div class="cover">
+${song.name[0].toUpperCase()}
+</div>
+
+<div class="song-name">
+${song.name}
+</div>
+
+`;
+
+recentGrid.appendChild(card);
+
+});
+
+}
+function updateClock(){
+
+document
+.getElementById("clock")
+.innerHTML=
+new Date().toLocaleTimeString();
+
+}
+
+setInterval(updateClock,1000);
+
+updateClock();
+
+search.addEventListener("keyup",()=>{
+
+let value=
+search.value.toLowerCase();
+
+search.addEventListener("keyup",()=>{
+
+let value =
+search.value.toLowerCase();
+
+let cards =
+grid.querySelectorAll(".card");
+
+cards.forEach(card=>{
+
+let songName =
+card.querySelector(".song-name")
+.textContent
+.toLowerCase();
+
+if(songName.includes(value)){
+
+card.style.display="block";
+
+}
+else{
+
+card.style.display="none";
+
+}
+
+});
+
+});
+
+cards.forEach(card=>{
+
+card.style.display=
+card.innerText
+.toLowerCase()
+.includes(value)
+
+?
+
+"block"
+
+:
+
+"none";
+
+});
+
+});
+
+</script>
+
+
+
+</body>
+</html>
